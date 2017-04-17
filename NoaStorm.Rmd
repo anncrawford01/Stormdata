@@ -1,0 +1,74 @@
+---
+title: "NOAA Storm Data"
+author: "Ann Crawford"
+date: "April 10, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Data Processing
+The raw data contains 37 variables and 902,297 observations with 1,745,947 missing values.
+
+Data collected from 1/3/1950 to 11/30/2011
+
+EVTYPE discribes the type of storm. there are r `length(unique(stormdataraw$EVTYPE)) `
+
+remove all summary
+```{r readdata}
+library(dplyr)
+## STATE__           BGN_DATE BGN_TIME TIME_ZONE COUNTY COUNTYNAME STATE  EVTYPE BGN_RANGE BGN_AZI BGN_LOCATI
+## ND_DATE END_TIME COUNTY_END COUNTYENDN END_RANGE END_AZI END_LOCATI LENGTH WIDTH F MAG FATALITIES INJURIES
+## PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP WFO STATEOFFIC ZONENAMES LATITUDE LONGITUDE LATITUDE_E LONGITUDE_ ##REMARKS
+if (!file.exists("./data/NOAAStormData.csv.bz2"))
+{
+        # get the data
+        if(!file.exists("./data")) {dir.create("./data")}
+        
+        dataurl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+        
+        download.file(dataurl,destfile="./data/NOAAStormData.csv.bz2",mode = "wb")
+}
+
+stormdataraw <- read.csv("./data/NOAAStormData.csv.bz2")
+
+```
+
+```{r dataprocessing}
+
+##stormdata <- mutate( date = (as.POSIXlt(data$BGN_DATE, format="%m/%d/%Y %H:%M:%S")
+
+stormdatayear <-mutate(stormdataraw, year = as.POSIXlt(BGN_DATE, format="%m/%d/%Y %H:%M:%S")$year + 1900)
+
+
+##%>%
+##        group_by(year) %>%
+ ##       summarize(deaths = sum(FATALITIES, na.rm=TRUE),
+##                  injury = sum(INJURIES, na.rm = TRUE),
+ ##                 cropdamage = sum(CROPDMG, na.rm = TRUE),
+  ##                propdamange = sum(PROPDMG , na.rm = TRUE) )
+
+stormdatatypex <-  group_by(stormdataraw,EVTYPE) %>%
+        summarize(death = sum(FATALITIES, na.rm=TRUE),
+                  injury = sum(INJURIES, na.rm = TRUE) )
+
+## count observactions by type  985 types of storms, some duplcates
+typeofstorm <- table(stormdataraw$EVTYPE)
+```
+
+##Results
+
+
+```{r pressure, echo=FALSE}
+
+##par(mfrow = c(2,1))
+hist(stormdatayear$year, xlab = "year", main = "Ferquency of Data Collected by Year")
+
+
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
